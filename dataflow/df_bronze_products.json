@@ -1,5 +1,5 @@
 {
-	"name": "df_bronze_category",
+	"name": "df_bronze_products",
 	"properties": {
 		"folder": {
 			"name": "Bronze"
@@ -9,7 +9,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "category_csv",
+						"referenceName": "product_csv",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
@@ -18,7 +18,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "ds_sql_category",
+						"referenceName": "ds_sql_products",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -27,9 +27,12 @@
 			"transformations": [],
 			"scriptLines": [
 				"source(output(",
-				"          category_id as string,",
-				"          category_name as string,",
-				"          extra_note as string",
+				"          Product_ID as string,",
+				"          Product_Name as string,",
+				"          Category_ID as string,",
+				"          Launch_Date as string,",
+				"          Price as string,",
+				"          notes as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
@@ -37,9 +40,12 @@
 				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
+				"          product_id as string,",
+				"          product_name as string,",
 				"          category_id as string,",
-				"          category_name as string,",
-				"          extra_note as string",
+				"          launch_date as string,",
+				"          price as string,",
+				"          notes as string",
 				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
@@ -50,9 +56,12 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          category_id,",
-				"          category_name,",
-				"          extra_note",
+				"          product_id = Product_ID,",
+				"          product_name = Product_Name,",
+				"          category_id = Category_ID,",
+				"          launch_date = Launch_Date,",
+				"          price = Price,",
+				"          notes",
 				"     )) ~> sink1"
 			]
 		}

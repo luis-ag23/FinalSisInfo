@@ -1,5 +1,5 @@
 {
-	"name": "df_bronze_category",
+	"name": "df_bronze_warranty",
 	"properties": {
 		"folder": {
 			"name": "Bronze"
@@ -9,7 +9,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "category_csv",
+						"referenceName": "warranty_csv",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
@@ -18,7 +18,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "ds_sql_category",
+						"referenceName": "ds_sql_warranty",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -27,9 +27,10 @@
 			"transformations": [],
 			"scriptLines": [
 				"source(output(",
-				"          category_id as string,",
-				"          category_name as string,",
-				"          extra_note as string",
+				"          claim_id as string,",
+				"          claim_date as string,",
+				"          sale_id as string,",
+				"          repair_status as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
@@ -37,9 +38,10 @@
 				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          category_id as string,",
-				"          category_name as string,",
-				"          extra_note as string",
+				"          claim_id as string,",
+				"          claim_date as string,",
+				"          sale_id as string,",
+				"          repair_status as string",
 				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
@@ -50,9 +52,10 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          category_id,",
-				"          category_name,",
-				"          extra_note",
+				"          claim_id,",
+				"          claim_date,",
+				"          sale_id,",
+				"          repair_status",
 				"     )) ~> sink1"
 			]
 		}

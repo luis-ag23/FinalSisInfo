@@ -1,5 +1,5 @@
 {
-	"name": "df_bronze_category",
+	"name": "df_bronze_sales",
 	"properties": {
 		"folder": {
 			"name": "Bronze"
@@ -9,7 +9,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "category_csv",
+						"referenceName": "sales_csv",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
@@ -18,7 +18,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "ds_sql_category",
+						"referenceName": "ds_sql_sales",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -27,9 +27,11 @@
 			"transformations": [],
 			"scriptLines": [
 				"source(output(",
-				"          category_id as string,",
-				"          category_name as string,",
-				"          extra_note as string",
+				"          sale_id as string,",
+				"          sale_date as string,",
+				"          store_id as string,",
+				"          product_id as string,",
+				"          quantity as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
@@ -37,9 +39,11 @@
 				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          category_id as string,",
-				"          category_name as string,",
-				"          extra_note as string",
+				"          sales_id as string,",
+				"          sales_date as string,",
+				"          store_id as string,",
+				"          product_id as string,",
+				"          quantity as string",
 				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
@@ -50,9 +54,11 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          category_id,",
-				"          category_name,",
-				"          extra_note",
+				"          sales_id = sale_id,",
+				"          sales_date = sale_date,",
+				"          store_id,",
+				"          product_id,",
+				"          quantity",
 				"     )) ~> sink1"
 			]
 		}
