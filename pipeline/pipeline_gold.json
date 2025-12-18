@@ -1,5 +1,5 @@
 {
-	"name": "pipeline_bronze",
+	"name": "pipeline_gold",
 	"properties": {
 		"activities": [
 			{
@@ -22,7 +22,7 @@
 					"scripts": [
 						{
 							"type": "NonQuery",
-							"text": "DELETE from [bronze].[category];\r\nDELETE from [bronze].[products];\r\nDELETE from [bronze].[stores];\r\nDELETE from [bronze].[warranty];\r\nDELETE from [bronze].[sales];"
+							"text": "DELETE from [golden].[dim_product];\r\nDELETE from [golden].[dim_store];\r\nDELETE from [golden].[dim_repair_status];\r\nDELETE from [golden].[fact_sales];\r\nDELETE from [golden].[fact_warranty];"
 						}
 					],
 					"scriptBlockExecutionTimeout": "02:00:00"
@@ -49,7 +49,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_category",
+						"referenceName": "df_golden_repair_status",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -80,7 +80,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_products",
+						"referenceName": "df_golden_dim_product",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -111,7 +111,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_sales",
+						"referenceName": "df_golden_dim_store",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -142,38 +142,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_stores",
-						"type": "DataFlowReference"
-					},
-					"compute": {
-						"coreCount": 8,
-						"computeType": "General"
-					},
-					"traceLevel": "Fine"
-				}
-			},
-			{
-				"name": "Data flow5",
-				"type": "ExecuteDataFlow",
-				"dependsOn": [
-					{
-						"activity": "Data flow4",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataflow": {
-						"referenceName": "df_bronze_warranty",
+						"referenceName": "df_golden_fact_sales",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -185,7 +154,7 @@
 			}
 		],
 		"folder": {
-			"name": "Bronze"
+			"name": "Gold"
 		},
 		"annotations": []
 	}

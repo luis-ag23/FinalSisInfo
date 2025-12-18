@@ -1,0 +1,99 @@
+{
+	"name": "df_silver_stores",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_stores",
+						"type": "DatasetReference"
+					},
+					"name": "stores"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_stores",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "derivedColumn4"
+				},
+				{
+					"name": "derivedColumn5"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          store_id as string,",
+				"          store_name as string,",
+				"          city as string,",
+				"          country as string,",
+				"          opened as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> stores",
+				"stores derive(store_id_std = upper(trim(store_id))) ~> derivedColumn1",
+				"derivedColumn1 filter(!isNull(store_id_std) && store_id_std != ''",
+				") ~> filter1",
+				"filter1 derive(store_name_std = trim(store_name)) ~> derivedColumn2",
+				"derivedColumn2 filter(!isNull(store_name_std) && store_name_std != ''",
+				") ~> filter2",
+				"filter2 derive(city_std = initCap(trim(city))\r",
+				") ~> derivedColumn3",
+				"derivedColumn3 derive(country_std = upper(trim(country))) ~> derivedColumn4",
+				"derivedColumn4 derive(opened_std = toDate(concat(toString(opened), '-01-01'))) ~> derivedColumn5",
+				"derivedColumn5 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          store_id as string,",
+				"          store_name as string,",
+				"          city as string,",
+				"          country as string,",
+				"          opened_date as date",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          store_id = store_id_std,",
+				"          store_name = store_name_std,",
+				"          city = city_std,",
+				"          country = country_std,",
+				"          opened_date = opened_std",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,107 @@
+{
+	"name": "df_silver_products",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_products",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_products",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "filter2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          product_id as string,",
+				"          product_name as string,",
+				"          category_id as string,",
+				"          launch_date as string,",
+				"          price as string,",
+				"          notes as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(product_id_std = upper(trim(product_id)),",
+				"          product_name_std = trim(product_name),",
+				"          category_id_std = upper(trim(category_id))) ~> derivedColumn1",
+				"derivedColumn1 derive(launch_date_std = toString(\r",
+				"    coalesce(\r",
+				"        toDate(launch_date, 'dd/MM/yyyy'),\r",
+				"        toDate(launch_date, 'MMM dd yyyy'),\r",
+				"        toDate(launch_date, 'yyyy.MM.dd'),\r",
+				"        toDate(launch_date, 'dd-MM-yyyy'),\r",
+				"        toDate(launch_date, 'MM/dd/yyyy'),\r",
+				"        toDate(launch_date, 'yyyy-MM-dd'),\r",
+				"        toDate(launch_date, 'yyyy/mm/dd')\r",
+				"    ), \r",
+				"    'yyyy-MM-dd'\r",
+				"),",
+				"          price_std = toDecimal(replace(replace(price,'€',''),'$',''),10,2)) ~> derivedColumn2",
+				"derivedColumn2 filter(isDecimal(regexReplace(price, '[€$,]', ''))) ~> filter1",
+				"filter1 cast(output(",
+				"          launch_date_std as date 'yyyy-MM-dd'",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 filter(!isNull(category_id_std)",
+				") ~> filter2",
+				"filter2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          product_id as string,",
+				"          product_name as string,",
+				"          category_id as string,",
+				"          launch_date as date,",
+				"          price as decimal(10,2)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          product_id = product_id_std,",
+				"          product_name = product_name_std,",
+				"          category_id = category_id_std,",
+				"          launch_date = launch_date_std,",
+				"          price = price_std",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

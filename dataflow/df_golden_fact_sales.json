@@ -1,0 +1,142 @@
+{
+	"name": "df_golden_fact_sales",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_sales",
+						"type": "DatasetReference"
+					},
+					"name": "sales"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_golden_dim_producto",
+						"type": "DatasetReference"
+					},
+					"name": "dimproduct"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_golden_dim_store",
+						"type": "DatasetReference"
+					},
+					"name": "dimstore"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_golden_fact_sales",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          sales_id as string,",
+				"          sales_date as date,",
+				"          store_id as string,",
+				"          product_id as string,",
+				"          quantity as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sales",
+				"source(output(",
+				"          product_key as integer,",
+				"          product_id as string,",
+				"          product_name as string,",
+				"          category_id as string,",
+				"          category_name as string,",
+				"          launch_date as date,",
+				"          price as decimal(10,2)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimproduct",
+				"source(output(",
+				"          store_key as integer,",
+				"          store_id as string,",
+				"          store_name as string,",
+				"          city as string,",
+				"          country as string,",
+				"          opened_date as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimstore",
+				"sales, dimproduct join(sales@product_id == dimproduct@product_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1, dimstore join(sales@store_id == dimstore@store_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 derive(total_amount = quantity * price) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          sales_id,",
+				"          sales_date,",
+				"          quantity,",
+				"          product_key,",
+				"          store_key,",
+				"          total_amount",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          sales_id as string,",
+				"          sales_date as date,",
+				"          store_key as integer,",
+				"          product_key as integer,",
+				"          quantity as integer,",
+				"          total_amount as decimal(12,2)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          sales_id,",
+				"          sales_date,",
+				"          store_key,",
+				"          product_key,",
+				"          quantity,",
+				"          total_amount",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

@@ -1,5 +1,5 @@
 {
-	"name": "pipeline_bronze",
+	"name": "pipeline_silver",
 	"properties": {
 		"activities": [
 			{
@@ -22,7 +22,7 @@
 					"scripts": [
 						{
 							"type": "NonQuery",
-							"text": "DELETE from [bronze].[category];\r\nDELETE from [bronze].[products];\r\nDELETE from [bronze].[stores];\r\nDELETE from [bronze].[warranty];\r\nDELETE from [bronze].[sales];"
+							"text": "DELETE from [silver].[category];\r\nDELETE from [silver].[products];\r\nDELETE from [silver].[stores];\r\nDELETE from [silver].[warranty];\r\nDELETE from [silver].[sales];"
 						}
 					],
 					"scriptBlockExecutionTimeout": "02:00:00"
@@ -49,7 +49,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_category",
+						"referenceName": "df_silver_category",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -80,7 +80,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_products",
+						"referenceName": "df_silver_products",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -111,7 +111,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_sales",
+						"referenceName": "df_silver_sales",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -142,7 +142,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_stores",
+						"referenceName": "df_silver_stores",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -173,7 +173,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_bronze_warranty",
+						"referenceName": "df_silver_warranty",
 						"type": "DataFlowReference"
 					},
 					"compute": {
@@ -185,7 +185,7 @@
 			}
 		],
 		"folder": {
-			"name": "Bronze"
+			"name": "Silver"
 		},
 		"annotations": []
 	}

@@ -1,0 +1,77 @@
+{
+	"name": "df_silver_category",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_category",
+						"type": "DatasetReference"
+					},
+					"name": "category"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_category",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          category_id as string,",
+				"          category_name as string,",
+				"          extra_note as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> category",
+				"category derive(category_id_std = upper(trim(category_id)),",
+				"          category_name_std = initCap(trim(category_name))) ~> derivedColumn1",
+				"derivedColumn1 filter(!isNull(category_id_std)",
+				"&& !isNull(category_name_std)",
+				"&& category_name_std != ''",
+				") ~> filter1",
+				"filter1 aggregate(groupBy(category_id_std),",
+				"     category_name_std = first(category_name_std)) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          category_id as string,",
+				"          category_name as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          category_id = category_id_std,",
+				"          category_name = category_name_std",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

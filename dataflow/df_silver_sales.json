@@ -1,0 +1,101 @@
+{
+	"name": "df_silver_sales",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_sales",
+						"type": "DatasetReference"
+					},
+					"name": "sales"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_sales",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "cast2"
+				},
+				{
+					"name": "filter1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          sales_id as string,",
+				"          sales_date as string,",
+				"          store_id as string,",
+				"          product_id as string,",
+				"          quantity as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sales",
+				"sales derive(sales_date = toString(\r",
+				"    coalesce(\r",
+				"        toDate(sales_date, 'dd/MM/yyyy'),\r",
+				"        toDate(sales_date, 'MMM dd yyyy'),\r",
+				"        toDate(sales_date, 'yyyy.MM.dd'),\r",
+				"        toDate(sales_date, 'dd-MM-yyyy'),\r",
+				"        toDate(sales_date, 'MM/dd/yyyy'),\r",
+				"        toDate(sales_date, 'yyyy-MM-dd'),\r",
+				"        toDate(sales_date, 'yyyy/mm/dd')\r",
+				"    ), \r",
+				"    'yyyy-MM-dd'\r",
+				")) ~> derivedColumn1",
+				"derivedColumn1 cast(output(",
+				"          sales_date as date 'yyyy-MM-dd'",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 cast(output(",
+				"          quantity as integer",
+				"     ),",
+				"     errors: true) ~> cast2",
+				"cast2 filter(!isNull(quantity)) ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          sales_id as string,",
+				"          sales_date as date,",
+				"          store_id as string,",
+				"          product_id as string,",
+				"          quantity as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          sales_id,",
+				"          sales_date,",
+				"          store_id,",
+				"          product_id,",
+				"          quantity",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

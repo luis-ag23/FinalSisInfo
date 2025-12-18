@@ -1,0 +1,38 @@
+{
+	"name": "ds_golden_fact_warranty",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_dw_apple",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "claim_id",
+				"type": "varchar"
+			},
+			{
+				"name": "claim_date_key",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "sales_id",
+				"type": "varchar"
+			},
+			{
+				"name": "repair_status_key",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "golden",
+			"table": "fact_warranty"
+		}
+	}
+}

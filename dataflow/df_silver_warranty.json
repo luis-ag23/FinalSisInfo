@@ -1,0 +1,110 @@
+{
+	"name": "df_silver_warranty",
+	"properties": {
+		"folder": {
+			"name": "Silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_warranty",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_warranty",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "window1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "filter2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          claim_id as string,",
+				"          claim_date as string,",
+				"          sale_id as string,",
+				"          repair_status as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(claim_date_std = toString(\r",
+				"    coalesce(\r",
+				"        toDate(claim_date, 'dd/MM/yyyy'),\r",
+				"        toDate(claim_date, 'MMM dd yyyy'),\r",
+				"        toDate(claim_date, 'yyyy.MM.dd'),\r",
+				"        toDate(claim_date, 'dd-MM-yyyy'),\r",
+				"        toDate(claim_date, 'MM/dd/yyyy'),\r",
+				"        toDate(claim_date, 'yyyy-MM-dd'),\r",
+				"        toDate(claim_date, 'yyyy/mm/dd')\r",
+				"    ), \r",
+				"    'yyyy-MM-dd'\r",
+				")) ~> derivedColumn1",
+				"derivedColumn1 derive(claim_id_std = upper(trim(claim_id)),",
+				"          sale_id_std = upper(trim(sale_id))) ~> derivedColumn2",
+				"derivedColumn2 derive(repair_status_std = iif(isNull(repair_status),'',upper(trim(repair_status)))) ~> derivedColumn3",
+				"derivedColumn3 window(over(claim_id_std),",
+				"     desc(claim_date_std, true),",
+				"     rn = rowNumber()) ~> window1",
+				"window1 filter(rn == 1) ~> filter1",
+				"filter1 cast(output(",
+				"          claim_date_std as date 'yyyy-MM-dd'",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 filter(!isNull(sale_id_std)) ~> filter2",
+				"filter2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          claim_id as string,",
+				"          claim_date as date,",
+				"          sales_id as string,",
+				"          repair_status as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          claim_id = claim_id_std,",
+				"          claim_date = claim_date_std,",
+				"          sales_id = sale_id_std,",
+				"          repair_status = repair_status_std",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
