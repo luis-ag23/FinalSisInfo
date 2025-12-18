@@ -1,0 +1,49 @@
+{
+	"name": "ds_golden_fact_sales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_dw_apple",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "sales_id",
+				"type": "varchar"
+			},
+			{
+				"name": "sales_date",
+				"type": "date"
+			},
+			{
+				"name": "store_key",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "product_key",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "quantity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "total_amount",
+				"type": "decimal",
+				"precision": 12,
+				"scale": 2
+			}
+		],
+		"typeProperties": {
+			"schema": "golden",
+			"table": "fact_sales"
+		}
+	}
+}

@@ -1,0 +1,29 @@
+{
+	"name": "ds_golden_repair_status",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_dw_apple",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "repair_status_key",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "repair_status",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "golden",
+			"table": "dim_repair_status"
+		}
+	}
+}
